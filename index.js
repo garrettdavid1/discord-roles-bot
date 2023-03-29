@@ -5,7 +5,6 @@ const client = new Client({
         GatewayIntentBits.GuildMessages, 
         GatewayIntentBits.GuildMessageReactions, 
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers,
     ],
     partials: [
         Partials.Channel,
