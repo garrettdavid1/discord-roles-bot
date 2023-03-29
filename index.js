@@ -23,32 +23,36 @@ const allowedRoles = {
 };
 
 const editRoles = (action = 'add') => async (reaction, user) => {
-    if (user.bot) return;
+    try{
+        if (user.bot) return;
 
-    const roleName = allowedRoles[reaction.emoji.name];
-    if (!roleName || reaction.message.id !== '1090245764791410761') return;
-
-    const role = reaction.message.guild.roles.cache.find(role => role.name === roleName);
-    if (!role) {
-        console.log(`${roleName} role not found in the server.`);
-        return;
+        const roleName = allowedRoles[reaction.emoji.name];
+        if (!roleName || reaction.message.id !== '1090245764791410761') return;
+    
+        const role = reaction.message.guild.roles.cache.find(role => role.name === roleName);
+        if (!role) {
+            console.log(`${roleName} role not found in the server.`);
+            return;
+        }
+    
+        const member = await reaction.message.guild.members.fetch(user.id);
+        if (!member) {
+            console.log('Member not found in the server.');
+            return;
+        }
+    
+        if(action === 'add') { 
+            if(member.roles.cache.find(r => r.name === roleName)) return;
+            await member.roles.add(role);
+        } else if(action === 'remove') {
+            if(!member.roles.cache.find(r => r.name === roleName)) return;
+            await member.roles.remove(role);
+        }
+    
+        console.log(`${action === 'add' ? 'Added' : 'Removed'} ${roleName} role to ${user.username}`);
+    } catch(err) {
+        console.log(`error: ${err.message}`);
     }
-
-    const member = await reaction.message.guild.members.fetch(user.id);
-    if (!member) {
-        console.log('Member not found in the server.');
-        return;
-    }
-
-    if(action === 'add') { 
-        if(member.roles.cache.find(r => r.name === roleName)) return;
-        await member.roles.add(role);
-    } else if(action === 'remove') {
-        if(!member.roles.cache.find(r => r.name === roleName)) return;
-        await member.roles.remove(role);
-    }
-
-    console.log(`${action === 'add' ? 'Added' : 'Removed'} ${roleName} role to ${user.username}`);
 }
 
 client.on('ready', () => {
